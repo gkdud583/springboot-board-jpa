@@ -143,7 +143,7 @@ class PostServiceTest {
             given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
 
             //when
-            postService.save(1L, post.getTitle(), post.getContent());
+            postService.save(user.getId(), post.getTitle(), post.getContent());
 
             //then
             verify(userRepository).findById(anyLong());
@@ -175,7 +175,7 @@ class PostServiceTest {
 
                 //when,then
                 assertThatThrownBy(() ->
-                        postService.save(1L, post.getTitle(), post.getContent()))
+                        postService.save(user.getId(), post.getTitle(), post.getContent()))
                                    .isInstanceOf(CustomException.class)
                                    .hasMessage("해당 사용자를 찾을 수 없습니다.");
             }
@@ -192,7 +192,7 @@ class PostServiceTest {
             given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
 
             //when
-            PostResponse postResponse = postService.update(post.getId(), 1L, post.getTitle(), post.getContent());
+            PostResponse postResponse = postService.update(post.getId(), user.getId(), post.getTitle(), post.getContent());
 
             //then
             verify(userRepository).findById(anyLong());
@@ -225,7 +225,7 @@ class PostServiceTest {
 
                 //when,then
                 assertThatThrownBy(() ->
-                        postService.update(post.getId(), 1L, post.getTitle(), post.getContent()))
+                        postService.update(post.getId(), user.getId(), post.getTitle(), post.getContent()))
                                    .isInstanceOf(CustomException.class)
                                    .hasMessage("해당 사용자를 찾을 수 없습니다.");
             }
@@ -242,7 +242,7 @@ class PostServiceTest {
 
                 //when,then
                 assertThatThrownBy(() ->
-                        postService.update(post.getId(), 1L, post.getTitle(), post.getContent()))
+                        postService.update(post.getId(), user.getId(), post.getTitle(), post.getContent()))
                                    .isInstanceOf(CustomException.class)
                                    .hasMessage("해당 게시글을 찾을 수 없습니다.");
             }

@@ -11,6 +11,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.lang.reflect.Field;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,20 +34,7 @@ class UserServiceTest {
 
     @BeforeAll
     public static void setup() {
-        Field userId;
-
-        try {
-            userId = user.getClass().getDeclaredField("id");
-            userId.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
-        try {
-            userId.set(user, id);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        ReflectionTestUtils.setField(user, "id", 1L);
     }
 
     @Nested

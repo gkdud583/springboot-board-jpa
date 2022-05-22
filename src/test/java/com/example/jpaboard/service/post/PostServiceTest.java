@@ -16,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import java.lang.reflect.Field;
+import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -47,33 +47,8 @@ class PostServiceTest {
 
     @BeforeAll
     public static void setup() {
-        Field postId;
-        Field userId;
-        try {
-            postId = post.getClass().getDeclaredField("id");
-            postId.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
-        try {
-            userId = user.getClass().getDeclaredField("id");
-            userId.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
-        try {
-            postId.set(post, 1L);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
-        try {
-            userId.set(user, 1L);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        ReflectionTestUtils.setField(user, "id", 1L);
+        ReflectionTestUtils.setField(post, "id", 1L);
     }
 
     @Nested
@@ -280,11 +255,13 @@ class PostServiceTest {
             void Forbidden_응답을_보낸다() {
                 //given
                 given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
-                given(postRepository.findById(anyLong())).willReturn(Optional.of(new Post("제목", "내용", new User("이름", 10, "운동"))));
+                User newUser = new User("이름", 10, "운동");
+                ReflectionTestUtils.setField(newUser, "id", 2L);
+                given(postRepository.findById(anyLong())).willReturn(Optional.of(new Post("제목", "내용", newUser)));
 
                 //when,then
                 assertThatThrownBy(() ->
-                        postService.update(post.getId(), 1L, post.getTitle(), post.getContent()))
+                        postService.update(post.getId(), user.getId(), post.getTitle(), post.getContent()))
                                    .isInstanceOf(CustomException.class)
                                    .hasMessage("접근 권한이 없습니다.");
             }
